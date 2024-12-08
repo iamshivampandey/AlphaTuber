@@ -16,7 +16,7 @@ const AppNavigator = () => {
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: {
-            height: 60,
+            height: 70,
             backgroundColor: '#121212',
             borderTopWidth: 0,
           },
