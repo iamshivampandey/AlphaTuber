@@ -8,4 +8,6 @@ export const  Colors = {
     AZURE_BLUE : '#3FA7D6', // Subtle highlights or borders
     GRADIENT_START : '#18A758', // Start color for gradients
     GRADIENT_END : '#242424', // End color for gradients
+    White: "#FFFFFF",
+    gery: "#464746"
   }
