@@ -33,9 +33,9 @@ const SongCardHorizontal = ({ item, containerStyle, imageStyle, onPress,titleSty
       duration={1000}
     >
       <>
-        <Image
-          // source={{ uri: item?.image }}
-          source={item?.image}
+        <FastImage
+          source={{ uri: item?.image }}
+          // source={item?.image}
           style={[styles.thumbnailStle, imageStyle]}
         />
         <View style={styles.songDetailView}>

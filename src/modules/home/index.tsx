@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ import MaterialIconsIcons from 'react-native-vector-icons/MaterialIcons';
 import Fonts from '../../utils/fonts';
 import VerticalSpace from '../../components/VerticalSpace';
 import SongCardHorizontal from '../../components/SongCardHorizontal';
+import FastImage from 'react-native-fast-image';
+import axios from 'axios';
 
 const songsData = [
   {
@@ -71,7 +73,77 @@ const songsData = [
 ];
 
 const HomeScreen = ({navigation}) => {
-  const [popandTrendData, setPopandTrendData] = useState(songsData);
+  const [popandTrendData, setPopandTrendData] = useState([]);
+
+  const [featuredData,setFeaturedData] = useState([]);
+
+  useEffect(()=>{
+    fetchPopularData()
+    getFeaturedList()
+    
+    
+  },[])
+
+
+  const fetchPopularData = async () => {
+    try {
+      const response = await axios.get("http://musily.xyz/music/popular");
+      console.log("popler fetchPopularData: " + JSON.stringify(response));
+
+      createPopularList(response?.data);
+    } catch (error) {
+      console.log("popler Error: " + JSON.stringify(error));
+    }
+  };
+
+  const createPopularList = (data) => {
+    let revisedData = [];
+    for (var i = 0; i < data.length; i++) {
+      let dataItem = data[i];
+      let obj = {
+        name: dataItem?.title,
+        description: "",
+        image: "https://img.youtube.com/vi/" + dataItem?.id + "/mqdefault.jpg",
+        time: dataItem?.duration,
+        videoId: dataItem?.id,
+        artist: dataItem?.channel,
+        isPlay: false,
+        isDeleted: false,
+      };
+      revisedData.push(obj);
+    }
+    setPopandTrendData(revisedData);
+  };
+
+  const getFeaturedList = () => {
+    axios
+      .get("http://musily.xyz/music/trending")
+      .then(({ data }) => {
+        createFeaturedList(data);
+      })
+      .catch((error) => console.log("featurs Error: " + JSON.stringify(error)));
+  };
+
+  const createFeaturedList = (data) => {
+    let revisedData = [];
+    for (var i = 0; i < data.length; i++) {
+      let dataItem = data[i];
+      let obj = {
+        name: dataItem?.title,
+        description: "",
+        image: "https://img.youtube.com/vi/" + dataItem?.id + "/mqdefault.jpg",
+        time: dataItem?.duration,
+        videoId: dataItem?.id,
+        artist: dataItem?.channel,
+        isPlay: false,
+        isDeleted: false,
+      };
+      revisedData.push(obj);
+    }
+    setFeaturedData(revisedData)
+
+  };
+
 
   const SectionCardComponent = ({titleText}) => {
     return (
@@ -118,6 +190,31 @@ const HomeScreen = ({navigation}) => {
       </View>
     );
   };
+  const FeaturedSongs = () => {
+    return (
+      <View>
+        <FlatList
+          data={featuredData}
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          renderItem={({item}) => {
+            console.log(JSON.stringify(item));
+            return (
+              <SongCardHorizontal
+                item={item}
+                onPress={() => {
+                  // emitter.emit("open-player", {
+                  //   item: item,
+                  //   playlist: popandTrendData,
+                  // });
+                }}
+              />
+            );
+          }}
+        />
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,38 +226,38 @@ const HomeScreen = ({navigation}) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-      <VerticalSpace top={20} />
+        <VerticalSpace top={20} />
 
-        <View style={{alignItems:'center',marginStart:5}}>
-
+        <View style={{alignItems: 'center', marginStart: 5}}>
           <FlatList
-          contentContainerStyle={{alignItems:'center'}}
+            contentContainerStyle={{alignItems: 'center'}}
             data={popandTrendData.slice(0, 4)}
             numColumns={2}
             renderItem={({item}) => {
               return (
                 <TouchableOpacity
                   style={{
-                    backgroundColor: "#404040",
+                    backgroundColor: '#404040',
                     flexDirection: 'row',
                     alignItems: 'center',
                     width: '46.5%',
-                    height:45,
+                    height: 45,
                     marginHorizontal: 6,
-                    marginVertical:8,
-                    borderRadius:2,
-                    gap:7
+                    marginVertical: 8,
+                    borderRadius: 2,
+                    gap: 7,
                   }}>
-                  <Image
-                    source={item.image}
+                  <FastImage
+                    source={{uri:item.image}}
                     style={{
                       width: 50,
                       height: '100%',
+                      borderRadius:3
                     }}
                   />
-                  <View>
-                    <Text style={{color:Colors.White}}>{item.name}</Text>
-                    <Text style={{color:"#b3b3b3"}}>{item.artist}</Text>
+                  <View style={{width:'90%'}}>
+                    <Text numberOfLines={1} style={{color: Colors.White,width:'75%'}}>{item.name}</Text>
+                    <Text numberOfLines={1} style={{color: '#b3b3b3'}}>{item.artist}</Text>
                   </View>
                 </TouchableOpacity>
               );
@@ -169,13 +266,13 @@ const HomeScreen = ({navigation}) => {
         </View>
 
         <SectionCardComponent titleText="Recently Played" />
-        <PopularAndTrending />
+        <FeaturedSongs />
 
         <SectionCardComponent titleText="Populer and Tranding" />
         <PopularAndTrending />
 
         <SectionCardComponent titleText="Featured" />
-        <PopularAndTrending />
+        <FeaturedSongs />
       </ScrollView>
     </SafeAreaView>
   );
